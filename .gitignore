@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Godot 4 editor cache (regenerated when the project is opened in the editor).
+# .import files next to assets ARE tracked; only the cache dir is ignored.
+godot/.godot/
+
+# Rust / native build output (rebuilt with `cargo build`)
+**/target/
+*.dylib
+
+# Python (sprite tooling used a throwaway venv)
+__pycache__/
+*.pyc
+
+# Superseded spike scratch — its findings live in desktop-cat-spike-3-window-detection.md
+# and its code was promoted to native/window_detect/. Kept locally, out of the repo.
+spike3/

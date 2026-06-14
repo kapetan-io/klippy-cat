@@ -1,0 +1,17 @@
+[package]
+name = "window_detect"
+version = "0.1.0"
+edition = "2021"
+description = "Layer 3 (OS integration): read other applications' window rectangles, exposed to Godot as the WindowDetect class."
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# gdext. Built against the bundled API and loaded into Godot 4.6 via forward-compat
+# (api-custom against 4.6 panics in gdext 0.4.5 — see README "Toolchain notes").
+godot = "0.4"
+
+[build-dependencies]
+cc = "1"

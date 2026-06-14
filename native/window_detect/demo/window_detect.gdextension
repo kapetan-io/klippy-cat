@@ -1,0 +1,8 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.1
+reloadable = true
+
+[libraries]
+macos.debug = "res://window_detect.dylib"
+macos.release = "res://window_detect.dylib"
