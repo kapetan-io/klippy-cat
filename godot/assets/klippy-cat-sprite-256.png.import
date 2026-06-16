@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cr714adnaw4dn"
-path="res://.godot/imported/clipi-kat-sprite-256.png-85b3089315995d3957d959cfb4290653.ctex"
+path="res://.godot/imported/klippy-cat-sprite-256.png-863506dacfcef604185c04b57ba33aea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/clipi-kat-sprite-256.png"
-dest_files=["res://.godot/imported/clipi-kat-sprite-256.png-85b3089315995d3957d959cfb4290653.ctex"]
+source_file="res://assets/klippy-cat-sprite-256.png"
+dest_files=["res://.godot/imported/klippy-cat-sprite-256.png-863506dacfcef604185c04b57ba33aea.ctex"]
 
 [params]
 
