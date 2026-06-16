@@ -1,4 +1,4 @@
-# Clipi-Cat — Godot project (Layers 1 & 2)
+# Klippy-Cat — Godot project (Layers 1 & 2)
 
 The portable core of the desktop pet: the **Cat Brain** (behavior) and **Rendering**. OS
 integration lives elsewhere — the cat's own window is handled by Godot + a thin wrapper
@@ -13,8 +13,9 @@ godot/
 ├── main.tscn / main.gd    root: owns the window, runs the two decoupled loops
 ├── brain/cat_brain.gd     LAYER 1 — portable behavior FSM (no Godot/OS knowledge)
 ├── view/cat_view.gd       LAYER 2 — rendering (static sprite now; sheet-anim later)
-├── platform/desktop.gd    thin Layer-3 wrapper for the cat's OWN window + cursor
-├── assets/                clipi-kat-sprite-256.png (placeholder art)
+├── platform/desktop.gd    thin Layer-3 wrapper: cat's OWN window + cursor + drop-landing lookup
+├── window_detect.gdextension   loads the native module (../native/window_detect) for drop-landing
+├── assets/                klippy-cat-sprite-256.png (placeholder art)
 └── tests/run_tests.gd     headless Layer-1 tests (no window)
 ```
 
@@ -26,17 +27,17 @@ window-riding (Spike 3) will use.
 ## Idle discipline (epic §5 — engineered, not assumed)
 Two loops, decoupled:
 - **Heartbeat Timer → `think()`** — slow decision tick (a few Hz), always on, cheap. Polls
-  the cursor, picks a state.
-- **`_process()` → `move()`** — per-frame movement, switched **on only for active (tier 2)**
-  states and **off the instant the cat settles**, so a still cat pushes no frames.
+  the cursor, sleeps / wakes-to-watch.
+- **`_process()` → `move()`** — per-frame movement, switched **on only while carried/landing
+  (tier 2)** and **off the instant the cat settles**, so a still cat pushes no frames.
 
 `_apply_tier()` slows the heartbeat and caps fps as the cat sleeps deeper:
 
 | Tier | State | Heartbeat | max_fps |
 |---|---|---|---|
-| 0 Dormant | deep sleep | 1 Hz | 10 |
-| 1 Watching | idle / tracking cursor | 10 Hz | 10 |
-| 2 Active | walking / chasing | 10 Hz | 60 |
+| 0 Asleep | resting (default) | ~3 Hz | 10 |
+| 1 Watching | tracking a near cursor | 10 Hz | 10 |
+| 2 Active | carried / landing | 60 Hz | 60 |
 
 > Spikes measured ~1% of one core at the default wake interval, tunable lower via
 > `low_processor_mode_sleep_usec`. Re-validate idle cleanly (one window) as behavior grows.
@@ -52,19 +53,39 @@ Two loops, decoupled:
 ```
 
 ## State machine (Layer 1)
-`DORMANT → IDLE → WATCH → WANDER`, driven by cursor proximity and idle time:
-cursor within `WAKE_RADIUS` → **WATCH** (track) → within `APPROACH_RADIUS` → **WANDER**
-(walk toward it); cursor gone → **IDLE**, escalating to **DORMANT** after `SLEEP_AFTER`;
-spontaneous wander to a random point while idle.
+`SLEEP → WATCH → HELD → LANDING`. The cat sleeps by default; the only thing it does on its
+own is wake to watch a near cursor. You move it by hand:
+
+- **SLEEP** — resting in place; the engine idles here.
+- **WATCH** — cursor within `WAKE_RADIUS` → awake and facing the cursor (no wandering).
+- **HELD** — a left-click on the cat body grabs it; it hangs `HOLD_OFFSET` below the cursor and
+  sways as you drag (a `lerp` lag gives the pendulum). Follows the **global** cursor, so you can
+  drag it anywhere.
+- **LANDING** — on release, the platform looks for a window top-edge within `LAND_RANGE` that the
+  cat is over (via the native `WindowDetect` module); if found, the cat slides onto it, else it
+  settles exactly where it was dropped. Either way → **SLEEP**.
+
+`grab()` / `release(landing)` are external events: the OS layer (`main.gd`) detects the click;
+the brain stays portable and never touches the window or the mouse buttons itself.
+
+### Picking up the cat (Layer 3 notes)
+- The window uses a **`mouse_passthrough_polygon`** over the cat body (not full click-through),
+  so clicks on the cat are grabs while the transparent corners fall through to apps behind.
+- If a grab doesn't register on macOS (a borderless no-focus window may not be handed clicks),
+  flip `Desktop.GRAB_STEALS_FOCUS = true` — the window then takes focus on click so the grab lands.
+- Drop-landing needs the native module loaded: `window_detect.gdextension` + a local
+  `window_detect.dylib` (copied from `../native/window_detect/target/debug/`). **Open the project
+  in the editor once** after adding it so `.godot/extension_list.cfg` registers it. Without it,
+  landing degrades to "stay where dropped".
 
 ## Build-order status (epic §8)
 - [x] Transparent always-on-top window + rendered sprite
-- [~] Follows cursor / wanders / sits idle — **this sketch** (tune feel next)
-- [x] Window-detection spike (→ `native/window_detect`)
-- [ ] Swap placeholder for real sprite-sheet animation (states defined by behavior first)
+- [x] Pick up / carry / drop, with drop-landing onto nearby window edges
+- [x] Window-detection spike (→ `native/window_detect`), now wired into the live project
+- [~] Procedural animation (carry sway, landing squash, sleep pose) — real sprite-sheet art next
 
 ## Next
-- Cursor *velocity* (fast wiggle → pounce/chase vs slow → watch).
-- Click reactions (needs a cat-body interactive region instead of full click-through).
-- Sprite-sheet animation in `CatView` per state.
-- A `CatConfig` resource for the tunables now hard-coded in `cat_brain.gd`.
+- Real sprite-sheet art per state (curled sleep, breathe, scruff-held) to replace the procedural
+  transforms in `CatView`.
+- Pivot the carry sway at the scruff (top of the sprite) for a truer dangle.
+- A `CatConfig` resource for the tunables now hard-coded in `cat_brain.gd` / `desktop.gd`.

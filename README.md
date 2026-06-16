@@ -1,19 +1,20 @@
 # Klippy-Cat
 
-A small pixel-art cat that lives on your desktop — a transparent, always-on-top,
-click-through companion that wanders, reacts to the cursor, naps when ignored, and (where
-the OS allows) treats application windows as surfaces it can sit on and ride.
+A small pixel-art cat that lives on your desktop — a transparent, always-on-top companion that
+sleeps where it lies, wakes to watch a passing cursor, and lets you pick it up and drop it. Let
+go near a window and (where the OS allows) it lands on the window's top edge.
 
 <p align="center">
-  <img src="clipi-kat-sprite-256.png" width="200" alt="Klippy the caped pixel cat">
+  <img src="klippy-cat-sprite-256.png" width="200" alt="Klippy the caped pixel cat">
 </p>
 
 The design goal is an **ambient, lifelike, low-cost** desktop pet: delightful enough to keep,
 quiet enough that nobody minds it launching at login every day.
 
 > **Status: pre-alpha.** The three existential validation spikes are complete (all green) and
-> the portable core renders and behaves on screen (spawns, idles, wanders). Not yet a polished
-> pet — see [Roadmap](#roadmap).
+> the portable core renders and behaves on screen: it sleeps, wakes to watch the cursor, and can
+> be picked up, carried, and dropped onto nearby window edges. Not yet a polished pet — see
+> [Roadmap](#roadmap).
 
 ## Architecture
 
@@ -40,7 +41,7 @@ desktop-cat-spike-2-window-plumbing.md   spike: borderless/click-through/multi-m
 desktop-cat-spike-3-window-detection.md  spike: read other apps' windows, no permission (PASS)
 godot/                              the Godot project — Layers 1 & 2 (+ thin platform wrapper)
 native/window_detect/              Rust GDExtension — Layer 3 macOS window detection
-clipi-kat*.png                     sprite art (original + alpha-stripped + 256² sprite)
+klippy-cat*.png                    sprite art (original + alpha-stripped + 256² sprite)
 ```
 
 ## Quick start
@@ -60,11 +61,11 @@ for details, headless tests, and the toolchain notes learned during the spikes.
 ## Roadmap
 
 - [x] Validation spikes (idle cost, window plumbing, other-window detection)
-- [x] Portable behavior core: spawn / idle / wander / wake-on-cursor
+- [x] Portable behavior core: sleep / wake-on-cursor / pick-up / carry / drop
+- [x] Pick up & drop — cat-body grab region (not full click-through) + drop-landing onto window edges
+- [ ] Sprite-sheet animation per state (curled sleep, breathe, scruff-held) — procedural for now
+- [ ] Window-riding (ride along / fall off windows, beyond the drop-landing snap)
 - [ ] Cursor-velocity reactions (fast wiggle → pounce/chase)
-- [ ] Petting (cat-body interactive region instead of full click-through)
-- [ ] Sprite-sheet animation per state (idle breathe, walk, sit, sleep)
-- [ ] Window-riding (sit on / ride / fall off other windows)
 - [ ] Menu-bar agent packaging (no dock icon) + display sleep/wake handling
 - [ ] Windows / Linux Layer-3 backends
 
